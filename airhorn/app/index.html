@@ -50,7 +50,7 @@
     <script src=scripts/messagechanneladapter.global.js></script>
     <script>
       if('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        navigator.serviceWorker.register('/sw.js', { scope: 'airhorn/app/' })
           .then(function(registration) {
                 console.log('Service Worker Registered');
           });
