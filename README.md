@@ -1,2 +1,0 @@
-# kekemuyu.github.io
-myblog
