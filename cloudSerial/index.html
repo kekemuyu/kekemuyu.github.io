@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title></title>
+		<link rel="stylesheet" href="/cloudSerial/css/bootstrap.min.css">
+		<link rel="manifest" href="/cloudSerial/manifest.json">
+	</head>
+	<style>
+		.banner {
+		  align-content: center;
+		  display: none;
+		  justify-content: center;
+		  width: 100%;
+		}
+
+	</style>
+	<body>
+
+		<nav class="navbar navbar-default navbar-fixed-top" style="background-color: #009966;">
+			<div class="container navbar-left">
+				<div class="navbar-header">
+					<!--<a class="navbar-brand " href="#">
+						<img src="img/rtlogo.png" width="25px" height="25px" onclick="menu()">
+					</a>-->
+					<text class="navbar-text" style="color: white;font-size: 20px;">串口调试助手</text>
+
+					<text id="serialID" class="navbar-text" style="color: white;font-size: 20px;"></text>
+
+					<text id="serialStatus" class="navbar-text" style="color: white;font-size: 20px;"></text>
+				</div>
+
+			</div>
+		</nav>
+
+
+
+		<div class="col-sm-12" id="contentDis " style="padding-top: 100px; ">
+			<div class="col-sm-3">
+				<div class="panel panel-default">
+					<div class="panel-heading">串口配置</div>
+					<div class="panel-body">
+						<text>串口号：</text>
+						<input type="text" name="" id="portName">
+
+						<button class="btn btn-info" id="portSelectBtn" onclick="portSelect()">选择串口</button>
+						<br /><br />
+						<text>波特率：</text>
+						<select id="baudRate" style="width:100px">
+							<option value="">1200</option>
+							<option value="">2400</option>
+							<option value="">4800</option>
+							<option value="" selected="selected">9600</option>
+							<option value="">115200</option>
+						</select><br /><br />
+						<text>校验位：</text>
+						<select id="parity" style="width:100px">
+							<option value="">none</option>
+							<option value="">odd</option>
+							<option value="">even</option>
+						</select><br /><br />
+						<text>数据位：</text>
+						<select id="dataBits" style="width:100px">
+							<option value="">8</option>
+							<option value="">7</option>
+							<option value="">6</option>
+							<option value="">5</option>
+						</select><br /><br />
+						<text>停止位：</text>
+						<select id="stopBits" style="width:100px">
+							<option value="">1</option>
+							<option value="">2</option>
+						</select><br /><br />
+						<button class="btn btn-info" onclick="serialOpen()" id="btnOpen">打开</button>
+						<button class="btn btn-info" style="margin-left: 20px;" onclick="serialClose()" id="btnClose">关闭</button>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">控制</div>
+					<div class="panel-body">
+						<!-- <input type="checkbox" name="options" id="hexOption" > 16进制/字符串:发送
+						<br />
+						<br />
+						<input type="checkbox" name="options2" id="hexOption2"> 16进制/字符串:接收
+						<br />
+						<br /> -->
+						<button class="btn btn-info" id="receiverClear" onclick="receiverClear()">
+							清空接收区
+						</button>
+						
+					</div>
+
+				</div>
+			</div>
+			<div class="col-sm-9">
+				<textarea rows="20" cols="80" id="receiverText">欢迎使用网页版串口助手。</textarea>
+				<div style="margin-top: 10px;">
+					<textarea rows="1" cols="60" style="float: left;" id="sendText"></textarea>
+					<button class="btn-info" style="margin-left: 10px;" onclick="serialSend()">
+						发送
+					</button>
+				</div>
+
+			</div>
+			<script type="text/javascript" src="/cloudSerial/js/jquery.min.js"></script>
+			<script type="text/javascript" src="/cloudSerial/js/bootstrap.min.js"></script>
+			<script type="text/javascript" src="/cloudSerial/js/index.js"></script>
+			<script>
+				if ('serviceWorker' in navigator) {
+					window.addEventListener('load', () => {
+						navigator.serviceWorker.register('/cloudSerial/sw.js',{scope:'/cloudSerial/'})
+							.then(registration => {
+								console.log('SW registered with scope:', registration.scope);
+							})
+							.catch(err => {
+								console.error('Registration failed:', err);
+							});
+					});
+				}
+			</script>
+			
+	</body>
+
+</html>
