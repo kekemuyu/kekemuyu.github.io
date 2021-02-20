@@ -10,7 +10,7 @@ $("#scanBtn")[0].addEventListener('click', function() {
 
 			// acceptAllAdvertisements: true,
 			// keepRepeatedDevices: true,
-			acceptAllDevices: true
+			acceptAllDevices: true,
 			optionalServices: [
 				"alert_notification",
 				"automation_io",
