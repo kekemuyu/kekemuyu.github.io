@@ -8,8 +8,8 @@ $("#scanBtn")[0].addEventListener('click', function() {
 			//     services: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
 			//   }],
 
-			// acceptAllAdvertisements: true,
-			//    keepRepeatedDevices: true,
+			acceptAllAdvertisements: true,
+			keepRepeatedDevices: true,
 			acceptAllDevices: true,
 			optionalServices: [
 				"alert_notification",
@@ -114,23 +114,23 @@ function overrideServices(services) {
 						$('#' + characteristic.uuid + ' input').val(String.fromCharCode.apply(null, new Uint8Array(value.buffer)));
 					});
 				}
-				
-				if(properties.indexOf("READ") != -1){
-					$('#'+characteristic.uuid+' button')[0].addEventListener("click",function(){
-						const value=characteristic.readValue();
+
+				if (properties.indexOf("READ") != -1) {
+					$('#' + characteristic.uuid + ' button')[0].addEventListener("click", function() {
+						const value = characteristic.readValue();
 						$('#' + characteristic.uuid + ' input').val(String.fromCharCode.apply(null, new Uint8Array(value.buffer)));
 					});
 				}
-				if(properties.indexOf("WRITE") != -1){
-					$('#'+characteristic.uuid+' button')[1].addEventListener("click",function(){
-						
+				if (properties.indexOf("WRITE") != -1) {
+					$('#' + characteristic.uuid + ' button')[1].addEventListener("click", function() {
+
 						// Writing 1 is the signal to reset energy expended.
-						const inputValue=$('#'+characteristic.uuid+' input').val();
-						  const value = stringToUint8Array(inputValue);
-						   characteristic.writeValue(value);
+						const inputValue = $('#' + characteristic.uuid + ' input').val();
+						const value = stringToUint8Array(inputValue);
+						characteristic.writeValue(value);
 					});
 				}
-				
+
 			});
 		}));
 	});
@@ -138,14 +138,14 @@ function overrideServices(services) {
 	return queue;
 }
 
-function stringToUint8Array(str){
-  var arr = [];
-  for (var i = 0, j = str.length; i < j; ++i) {
-    arr.push(str.charCodeAt(i));
-  }
- 
-  var tmpUint8Array = new Uint8Array(arr);
-  return tmpUint8Array
+function stringToUint8Array(str) {
+	var arr = [];
+	for (var i = 0, j = str.length; i < j; ++i) {
+		arr.push(str.charCodeAt(i));
+	}
+
+	var tmpUint8Array = new Uint8Array(arr);
+	return tmpUint8Array
 }
 
 /* Utils */
