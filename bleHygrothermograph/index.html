@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>bleHygrothermograph</title>
+
+		<link rel="stylesheet" href="/bleHygrothermograph/css/index.css">
+		<link rel="manifest" href="/bleHygrothermograph/manifest.json">
+	</head>
+	<body>
+		<div class='container'>
+			<div class='card temp'>
+				<div class='inner'>
+					<div class='icon'></div>
+					<div class='title'>
+						<div class='text'>TEMPERATURE</div>
+					</div>
+					<div class='number'>22</div>
+					<div class='measure'>CELCIUS</div>
+				</div>
+			</div>
+			<div class='card energy'>
+				<div class='inner'>
+					<div class='icon'></div>
+					<div class='title'>
+						<div class='text'>HUMIDITY</div>
+					</div>
+					<div class='number'>45</div>
+					<!-- <div class='measure'>kW/HOUR</div> -->
+				</div>
+			</div>
+		</div>
+		<div id="" align="center" >
+			<button type="button" id="scanBtn">扫描蓝牙</button>
+		</div>	
+		<script type="text/javascript" src="/bleHygrothermograph/js/jquery.min.js"></script>
+		<script type="text/javascript" src="/bleHygrothermograph/js/index.js"></script>
+		<script>
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/bleHygrothermograph/sw.js', {
+							scope: '/bleHygrothermograph/'
+						})
+						.then(registration => {
+							console.log('SW registered with scope:', registration.scope);
+						})
+						.catch(err => {
+							console.error('Registration failed:', err);
+						});
+				});
+			}
+		</script>
+	</body>
+</html>
