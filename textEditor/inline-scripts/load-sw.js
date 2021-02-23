@@ -19,7 +19,7 @@
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker
-        .register('../../textEditor/service-worker.js',{scope:'../'});
+        .register('/textEditor/service-worker.js',{scope:'/textEditor/'});
   }
 });
 

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>WebBle</title>
+		<link rel="stylesheet" href="/webLocalfile/css/bootstrap.min.css">
+		<link rel="manifest" href="/webLocalfile/manifest.json">
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top" style="background-color: #009966;">
+			<div class="container navbar-left">
+				<div class="navbar-header">
+					<text class="navbar-text" style="color: white;font-size: 20px;">webLocalfile</text>
+
+					<text id="serialID" class="navbar-text" style="color: white;font-size: 20px;"></text>
+
+					<text id="serialStatus" class="navbar-text" style="color: white;font-size: 20px;"></text>
+				</div>
+
+			</div>
+		</nav>
+
+		<div class="panel panel-default" style="padding-top: 100px; ">
+			<div class="panel-heading">
+				<button class=" btn btn-success " type="button" id="btnOpendir">打开文件夹</button>
+			</div>
+			<div class="panel-body">
+				<div id="contentDis " style=" margin-left: 20px">
+				<!-- 	<select id="disk" style="width: 100px" onChange="diskSelect()">
+					</select> -->
+					<input id="path" type="text" name="">
+					
+					<button class=" btn btn-success " type="button" id="btnCreatedir">创建文件夹</button>
+					<button class=" btn btn-success " type="button" id="btnCreatefile">创建文件</button>
+					<button class=" btn btn-success " type="button" id="btnOpen">打开文件</button>
+					<button class=" btn btn-success " type="button" id="btnSave">保存</button>
+					<button class=" btn btn-success " type="button" id="btnDelte">删除</button>
+					<div style="border:solid;height: 300px;overflow-y: auto;">
+						<ul class="list-group" id="files" style="list-style-type:none">
+
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div style=" margin-left: 40px">
+			<textarea rows="10" cols="220">
+				
+			</textarea>
+			<button class=" btn btn-success " type="button" id="btnClear">清空</button>
+		</div>
+
+
+		<script type="text/javascript" src="/webLocalfile/js/jquery.min.js"></script>
+		<script type="text/javascript" src="/webLocalfile/js/index.js"></script>
+		<!-- <script>
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/webLocalfile/sw.js', {
+							scope: '/webLocalfile/'
+						})
+						.then(registration => {
+							console.log('SW registered with scope:', registration.scope);
+						})
+						.catch(err => {
+							console.error('Registration failed:', err);
+						});
+				});
+			}
+		</script> -->
+	</body>
+</html>
