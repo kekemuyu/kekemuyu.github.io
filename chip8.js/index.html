@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv='cache-control' content='no-cache'>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv='expires' content='0'>
+		<meta http-equiv='pragma' content='no-cache'>
+		<!-- <link href='https://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'> -->
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				background: #686868;
+				color: #FFFFFF;
+				-webkit-appearance: none;
+				/* text-align: center; */
+			}
+
+			.main {
+				margin-top: 30px;
+				padding: 50px;
+				display: flex;
+				flex-flow: row;
+
+			}
+
+			.title {
+				float: left;
+			}
+
+			canvas {
+				margin-left: 30px;
+				width: 640px;
+				height: 320px;
+				top: 20%;
+				left: 50%;
+				/* margin-left: -320px;
+				margin-top: -160px; */
+				background: #fff;
+				image-rendering: -webkit-optimize-contrast;
+				image-rendering: pixelated
+			}
+
+			.controls {
+				display: none;
+			}
+
+			#mycontrol {
+				margin-left: 50px;
+				height: 320px;
+
+			}
+
+			#mycontrol>button {
+				font-size: 60px;
+
+			}
+
+			.content {
+				display: flex;
+				flex-flow: column;
+				flex-wrap: wrap;
+				width: 550px;
+				line-height: 30px;
+			}
+
+			.content input {
+				margin-left: 20px;
+				font-size: 20px;
+			}
+
+			#mem {
+				flex: column;
+				margin-left: 40px;
+				width: 500px;
+			}
+
+			.wikitable {
+				background-color: #f8f9fa;
+				color: #202122;
+				margin: 1em 0;
+				border: 1px solid #a2a9b1;
+				border-collapse: collapse;
+				margin-left: 20px;
+			}
+
+		 table,table tr th, table tr td { border:1px solid #ffffff; }
+
+
+
+
+
+			/* @media only screen and (max-device-width: 500px) {
+				canvas {
+					width: 100%;
+					max-height: 20%;
+					top: 0%;
+					left: 0%;
+					right: 0%;
+					margin: 0
+				}
+
+				.controls {
+					display: block;
+					width: 100%;
+					margin-top: 30%;
+					text-align: center
+				}
+
+				.controls button {
+					font-family: 'Press Start 2P', monospace;
+					display: inline-block;
+					outline: none;
+					font-weight: 400;
+					color: #fff;
+					font-size: 25px;
+					border: none;
+					width: 15%;
+					line-height: 100px;
+					margin: 0 auto;
+					overflow: hidden
+				}
+			} */
+		</style>
+	</head>
+	<body>
+		<!-- 	// output pre cycle
+				console.log(' --- cycle ' + step + ' --- ')
+				console.log('pc:', pc, 'sp:', sp)
+				console.log('instruction:', opcode.toString(16), 'code:', code.toString(16))
+				console.log('nnn:', nnn, 'n:', n, 'x:', x, 'y:', y, 'kk:', kk)
+				console.log('v:', V)
+				console.log('stack:', stack)
+				console.log("I:", I) -->
+		<div style="text-align: center;margin-top: 20px;">
+			<h2>chip8模拟器</h2>
+		</div>
+
+		<div class="main">
+
+			<div class="content">
+				<div style="margin-left: 20%;padding: 20px;">
+					<h3>cpu & register</h3>
+				</div>
+				<div style="display: flex;flex-flow: row;">
+					<div style="width: 80px;text-align: left;" title="执行周期">cycle:</div><input type="" name="" id=""
+						value="" />
+				</div>
+				<div style="display: flex;flex-flow: row;">
+					<div style="width: 80px;text-align: left;" title="pc指针">pc:</div><input type="" name="" id=""
+						value="" />
+				</div>
+				<div style="display: flex;flex-flow: row;">
+					<div style="width: 80px;text-align: left;" title="指令">instruction:</div><input type="" name="" id=""
+						value="" />
+				</div>
+				<div style="display: flex;flex-flow: row;">
+					<div style="width: 80px;text-align: left;" title="栈指针">sp:</div><input type="" name="" id=""
+						value="" />
+				</div>
+				<div style="display: flex;flex-flow: row;">
+					<div style="width: 80px;text-align: left;" title="16位寄存器;共有16个">v:</div><input type="" name="" id=""
+						value="" size="40" />
+				</div>
+				<div style="display: flex;flex-flow: row;">
+					<div style="width: 80px;text-align: left;" title="栈">stack:</div><input type="" name="" id=""
+						value="" size="40" />
+				</div>
+				<div style="display: flex;flex-flow: row;">
+					<div style="width: 80px;text-align: left;" title="内存指针">I:</div><input type="" name="" id=""
+						value="" />
+				</div>
+			</div>
+			<div>
+				<h3 style="text-align: center;">
+					 64x32 pixel 	
+				</h3>
+			
+				 <canvas id='canvas'></canvas>
+			</div>
+			
+			<div id="mycontrol">
+				<button type="button" onclick="test(true)">step</button>
+				<button type="button" onclick="test(false)">run</button>
+				<!-- <table border="" cellspacing="" cellpadding="">
+					<tr><th>Header</th></tr>
+					<tr><td>Data</td></tr>
+				</table> -->
+			</div>
+		</div>
+
+
+		<div style="display: flex;flex-flow: row;">
+
+
+			<div id="mem">
+				<div style="text-align: center;">
+					<h3>memery</h3>
+					<p>
+						CHIP-8 was most commonly implemented on 4K systems, such as the Cosmac VIP and the Telmac 1800.
+						These machines had 4096 (0x1000) memory locations, all of which are 8 bits (a byte) which is
+						where the term CHIP-8 originated. However, the CHIP-8 interpreter itself occupies the first 512
+						bytes of the memory space on these machines. For this reason, most programs written for the
+						original system begin at memory location 512 (0x200) and do not access any of the memory below
+						the location 512 (0x200). The uppermost 256 bytes (0xF00-0xFFF) are reserved for display
+						refresh, and the 96 bytes below that (0xEA0-0xEFF) were reserved for the call stack, internal
+						use, and other variables.
+					</p>
+				</div>
+
+				<div>
+					<table border="" cellspacing="" cellpadding="" style="background-color: #FFFFFF;color: #FFFFFF;">
+						<tr id="theader">
+							<th>Header</th>
+						</tr>
+						<tr id="tdata">
+							<td>Data</td>
+						</tr>
+					</table>
+				</div>
+
+			</div>
+			<div id="opcode"  style="width: 1000px; margin-left: 50px;">
+				<div style="text-align: center;"><h3>指令集</h3></div>
+				
+				<table class="wikitable" style="background-color: #FFFFFF;color: #FFFFFF;">
+					<tbody>
+						<tr>
+							<th>Opcode
+							</th>
+							<th>Type
+							</th>
+							<th>C Pseudo
+							</th>
+							<th>Explanation
+							</th>
+						</tr>
+						<tr>
+							<td>0NNN
+							</td>
+							<td>Call
+							</td>
+							<td>
+							</td>
+							<td>Calls machine code routine (<a href="/wiki/RCA_1802" title="RCA 1802">RCA 1802</a> for
+								COSMAC VIP) at address NNN. Not necessary for most ROMs.
+							</td>
+						</tr>
+						<tr>
+							<td>00E0
+							</td>
+							<td>Display
+							</td>
+							<td>disp_clear()
+							</td>
+							<td>Clears the screen.
+							</td>
+						</tr>
+						<tr>
+							<td>00EE
+							</td>
+							<td>Flow
+							</td>
+							<td>return;
+							</td>
+							<td>Returns from a subroutine.
+							</td>
+						</tr>
+						<tr>
+							<td>1NNN
+							</td>
+							<td>Flow
+							</td>
+							<td>goto NNN;
+							</td>
+							<td>Jumps to address NNN.
+							</td>
+						</tr>
+						<tr>
+							<td>2NNN
+							</td>
+							<td>Flow
+							</td>
+							<td>*(0xNNN)()
+							</td>
+							<td>Calls subroutine at NNN.
+							</td>
+						</tr>
+						<tr>
+							<td>3XNN
+							</td>
+							<td>Cond
+							</td>
+							<td>if(Vx==NN)
+							</td>
+							<td>Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to
+								skip a code block)
+							</td>
+						</tr>
+						<tr>
+							<td>4XNN
+							</td>
+							<td>Cond
+							</td>
+							<td>if(Vx!=NN)
+							</td>
+							<td>Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a
+								jump to skip a code block)
+							</td>
+						</tr>
+						<tr>
+							<td>5XY0
+							</td>
+							<td>Cond
+							</td>
+							<td>if(Vx==Vy)
+							</td>
+							<td>Skips the next instruction if VX equals VY. (Usually the next instruction is a jump to
+								skip a code block)
+							</td>
+						</tr>
+						<tr>
+							<td>6XNN
+							</td>
+							<td>Const
+							</td>
+							<td>V<i>x</i> = NN
+							</td>
+							<td>Sets VX to NN.
+							</td>
+						</tr>
+						<tr>
+							<td>7XNN
+							</td>
+							<td>Const
+							</td>
+							<td>V<i>x</i> += NN
+							</td>
+							<td>Adds NN to VX. (Carry flag is not changed)
+							</td>
+						</tr>
+						<tr>
+							<td>8XY0
+							</td>
+							<td>Assign
+							</td>
+							<td>V<i>x</i>=Vy
+							</td>
+							<td>Sets VX to the value of VY.
+							</td>
+						</tr>
+						<tr>
+							<td>8XY1
+							</td>
+							<td>BitOp
+							</td>
+							<td>Vx=V<i>x</i>|V<i>y</i>
+							</td>
+							<td>Sets VX to VX <a href="/wiki/Logical_disjunction" title="Logical disjunction">or</a> VY.
+								(Bitwise OR operation)
+							</td>
+						</tr>
+						<tr>
+							<td>8XY2
+							</td>
+							<td>BitOp
+							</td>
+							<td>Vx=V<i>x&amp;</i>V<i>y</i>
+							</td>
+							<td>Sets VX to VX <a href="/wiki/Logical_conjunction" title="Logical conjunction">and</a>
+								VY. (Bitwise AND operation)
+							</td>
+						</tr>
+						<tr>
+							<td>8XY3<sup id="cite_ref-rcaops_15-0" class="reference"><a
+										href="#cite_note-rcaops-15">[a]</a></sup>
+							</td>
+							<td>BitOp
+							</td>
+							<td>Vx=Vx^Vy
+							</td>
+							<td>Sets VX to VX <a href="/wiki/Xor" class="mw-redirect" title="Xor">xor</a> VY.
+							</td>
+						</tr>
+						<tr>
+							<td>8XY4
+							</td>
+							<td>Math
+							</td>
+							<td>Vx += Vy
+							</td>
+							<td>Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
+							</td>
+						</tr>
+						<tr>
+							<td>8XY5
+							</td>
+							<td>Math
+							</td>
+							<td>Vx -= Vy
+							</td>
+							<td>VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+							</td>
+						</tr>
+						<tr>
+							<td>8XY6<sup id="cite_ref-rcaops_15-1" class="reference"><a
+										href="#cite_note-rcaops-15">[a]</a></sup>
+							</td>
+							<td>BitOp
+							</td>
+							<td>Vx&gt;&gt;=1
+							</td>
+							<td>Stores the least significant bit of VX in VF and then shifts VX to the right by 1.<sup
+									id="cite_ref-bitshift_16-0" class="reference"><a
+										href="#cite_note-bitshift-16">[b]</a></sup>
+							</td>
+						</tr>
+						<tr>
+							<td>8XY7<sup id="cite_ref-rcaops_15-2" class="reference"><a
+										href="#cite_note-rcaops-15">[a]</a></sup>
+							</td>
+							<td>Math
+							</td>
+							<td>Vx=Vy-Vx
+							</td>
+							<td>Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+							</td>
+						</tr>
+						<tr>
+							<td>8XYE<sup id="cite_ref-rcaops_15-3" class="reference"><a
+										href="#cite_note-rcaops-15">[a]</a></sup>
+							</td>
+							<td>BitOp
+							</td>
+							<td>Vx&lt;&lt;=1
+							</td>
+							<td>Stores the most significant bit of VX in VF and then shifts VX to the left by 1.<sup
+									id="cite_ref-bitshift_16-1" class="reference"><a
+										href="#cite_note-bitshift-16">[b]</a></sup>
+							</td>
+						</tr>
+						<tr>
+							<td>9XY0
+							</td>
+							<td>Cond
+							</td>
+							<td>if(Vx!=Vy)
+							</td>
+							<td>Skips the next instruction if VX doesn't equal VY. (Usually the next instruction is a
+								jump to skip a code block)
+							</td>
+						</tr>
+						<tr>
+							<td>ANNN
+							</td>
+							<td>MEM
+							</td>
+							<td>I = NNN
+							</td>
+							<td>Sets I to the address NNN.
+							</td>
+						</tr>
+						<tr>
+							<td>BNNN
+							</td>
+							<td>Flow
+							</td>
+							<td>PC=V0+NNN
+							</td>
+							<td>Jumps to the address NNN plus V0.
+							</td>
+						</tr>
+						<tr>
+							<td>CXNN
+							</td>
+							<td>Rand
+							</td>
+							<td>Vx=rand()&amp;NN
+							</td>
+							<td>Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to
+								255) and NN.
+							</td>
+						</tr>
+						<tr>
+							<td>DXYN
+							</td>
+							<td>Disp
+							</td>
+							<td>draw(Vx,Vy,N)
+							</td>
+							<td>Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N+1
+								pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I
+								value doesn’t change after the execution of this instruction. As described above, VF is
+								set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn,
+								and to 0 if that doesn’t happen
+							</td>
+						</tr>
+						<tr>
+							<td>EX9E
+							</td>
+							<td>KeyOp
+							</td>
+							<td>if(key()==Vx)
+							</td>
+							<td>Skips the next instruction if the key stored in VX is pressed. (Usually the next
+								instruction is a jump to skip a code block)
+							</td>
+						</tr>
+						<tr>
+							<td>EXA1
+							</td>
+							<td>KeyOp
+							</td>
+							<td>if(key()!=Vx)
+							</td>
+							<td>Skips the next instruction if the key stored in VX isn't pressed. (Usually the next
+								instruction is a jump to skip a code block)
+							</td>
+						</tr>
+						<tr>
+							<td>FX07
+							</td>
+							<td>Timer
+							</td>
+							<td>Vx = get_delay()
+							</td>
+							<td>Sets VX to the value of the delay timer.
+							</td>
+						</tr>
+						<tr>
+							<td>FX0A
+							</td>
+							<td>KeyOp
+							</td>
+							<td>Vx = get_key()
+							</td>
+							<td>A key press is awaited, and then stored in VX. (Blocking Operation. All instruction
+								halted until next key event)
+							</td>
+						</tr>
+						<tr>
+							<td>FX15
+							</td>
+							<td>Timer
+							</td>
+							<td>delay_timer(Vx)
+							</td>
+							<td>Sets the delay timer to VX.
+							</td>
+						</tr>
+						<tr>
+							<td>FX18
+							</td>
+							<td>Sound
+							</td>
+							<td>sound_timer(Vx)
+							</td>
+							<td>Sets the sound timer to VX.
+							</td>
+						</tr>
+						<tr>
+							<td>FX1E
+							</td>
+							<td>MEM
+							</td>
+							<td>I +=Vx
+							</td>
+							<td>Adds VX to I. VF is not affected.<sup id="cite_ref-18" class="reference"><a
+										href="#cite_note-18">[c]</a></sup>
+							</td>
+						</tr>
+						<tr>
+							<td>FX29
+							</td>
+							<td>MEM
+							</td>
+							<td>I=sprite_addr[Vx]
+							</td>
+							<td>Sets I to the location of the sprite for the character in VX. Characters 0-F (in
+								hexadecimal) are represented by a 4x5 font.
+							</td>
+						</tr>
+						<tr>
+							<td>FX33
+							</td>
+							<td>BCD
+							</td>
+							<td>set_BCD(Vx);
+								<p>*(I+0)=BCD(3);
+								</p>
+								<p>*(I+1)=BCD(2);
+								</p>
+								<p>*(I+2)=BCD(1);
+								</p>
+							</td>
+							<td>Stores the <a href="/wiki/Binary-coded_decimal"
+									title="Binary-coded decimal">binary-coded decimal</a> representation of VX, with the
+								most significant of three digits at the address in I, the middle digit at I plus 1, and
+								the least significant digit at I plus 2. (In other words, take the decimal
+								representation of VX, place the hundreds digit in memory at location in I, the tens
+								digit at location I+1, and the ones digit at location I+2.)
+							</td>
+						</tr>
+						<tr>
+							<td>FX55
+							</td>
+							<td>MEM
+							</td>
+							<td>reg_dump(Vx,&amp;I)
+							</td>
+							<td>Stores V0 to VX (including VX) in memory starting at address I. The offset from I is
+								increased by 1 for each value written, but I itself is left unmodified.<sup
+									id="cite_ref-increment_19-0" class="reference"><a
+										href="#cite_note-increment-19">[d]</a></sup>
+							</td>
+						</tr>
+						<tr>
+							<td>FX65
+							</td>
+							<td>MEM
+							</td>
+							<td>reg_load(Vx,&amp;I)
+							</td>
+							<td>Fills V0 to VX (including VX) with values from memory starting at address I. The offset
+								from I is increased by 1 for each value written, but I itself is left unmodified.<sup
+									id="cite_ref-increment_19-1" class="reference"><a
+										href="#cite_note-increment-19">[d]</a></sup>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<script>
+			// 64x32 pixel monochrome
+			var canvas = document.getElementById('canvas')
+			canvas.width = 64
+			canvas.height = 32
+			var debug = true
+
+			// pixelated edges
+			var ctx = canvas.getContext('2d')
+			ctx.imageSmoothingEnabled = false
+
+			function test(p) {
+				debug = p
+				cycle();
+			}
+			// audio beep
+			var beep = new Audio(
+				'data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU='
+			)
+
+			// 4k memory
+			//   0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
+			//   0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
+			//   0x200-0xFFF - Program ROM and work RAM
+			var memory = []
+
+			var opcode // current op code
+			var V = [] // 15 8bit registers
+			var I // index register 0x000 to 0xFFF
+			var pc // program counter 0x000 to 0xFFF
+			var stack = [] // 16 level jump stack
+			var sp // stack pointer
+			var keyStates = [] // hex keypad states 0x0 to 0xF
+			var gfx = [] // 64x32 pixel array
+			var keys = [] // array for key states
+			var delay = 0 // delay timer
+			var sound = 0 // sound timer
+			var redraw = false // flag to redraw screen
+			var loaded = false // flag for rom load
+			var url = '' // rom url - default UFO
+
+			// key bindings
+			var keybinds = {
+				49: 0x1,
+				50: 0x2,
+				51: 0x3,
+				51: 0xc, // 1234 :: 123c
+				81: 0x4,
+				87: 0x5,
+				69: 0x6,
+				82: 0xd, // qwer :: 456d
+				65: 0x7,
+				83: 0x8,
+				68: 0x9,
+				70: 0xe, // asdf :: 789e
+				90: 0xa,
+				88: 0x0,
+				67: 0xb,
+				86: 0xf // zxcv :: a0bf
+			}
+
+			function memeUpdate() {
+				var th = document.getElementById("theader")
+				var tdata = document.getElementById("tdata")
+
+				th.innerHTML = ''
+				tdata.innerHTML = ''
+				var thr = document.createElement('tr')
+
+				// for (var i = 0; i < 16; i++) {
+
+				// 	var thh = document.createElement('th')
+
+				// 	var hdata = document.createTextNode(i.toString(16).padStart(2,"0").toUpperCase())
+				// 	thh.appendChild(hdata)
+				// 	thr.appendChild(thh)
+
+
+				// }
+				th.appendChild(thr)
+				for (var i = 0; i < 4096 / 16; i++) {
+					var tr = document.createElement('tr')
+					var td = document.createElement('td')
+
+					td.appendChild(document.createTextNode((i * 16).toString().padStart(2, "0").toUpperCase()))
+
+					tr.appendChild(td)
+					for (var j = 0; j < 16; j++) {
+
+						var td = document.createElement('td')
+						var data = document.createTextNode(memory[i * 16 + j].toString(16).padStart(2, "0").toUpperCase())
+						td.appendChild(data)
+						tr.appendChild(td)
+
+
+					}
+					tdata.appendChild(tr)
+
+				}
+			}
+			// initialize registries and memory
+			function initialize() {
+				pc = 0x200 // program counter start
+				op = 0 // reset current opcode
+				I = 0 // reset index register
+				sp = 0 // reset stack pointer
+				redraw = true // flag to redraw screen
+				loaded = false // flag for rom load
+
+				memory = Array.apply(null, Array(4096)).map(function() {
+					return 0
+				}) // reset memory
+				stack = Array.apply(null, Array(15)).map(function() {
+					return 0
+				}) // reset jump stack
+				keys = Array.apply(null, Array(16)).map(function() {
+					return 0
+				}) // reset key states
+				V = Array.apply(null, Array(16)).map(function() {
+					return 0
+				}) // reset registers 8bit registers
+				gfx = Array.apply(null, Array(64 * 32)).map(function() {
+					return 0
+				}) // reset display
+
+				// hexadecimal digits (0 through F sprites)
+				// 5 bytes long, or 8x5 pixels stored
+				// in the interpreter memory (0x000 to 0x1FF)
+				Array.prototype.splice.apply(memory, [00, 5].concat([0xF0, 0x90, 0x90, 0x90, 0xF0])) // 0
+				Array.prototype.splice.apply(memory, [05, 5].concat([0x20, 0x60, 0x20, 0x20, 0x70])) // 1
+				Array.prototype.splice.apply(memory, [10, 5].concat([0xF0, 0x10, 0xF0, 0x80, 0xF0])) // 2
+				Array.prototype.splice.apply(memory, [15, 5].concat([0xF0, 0x10, 0xF0, 0x10, 0xF0])) // 3
+				Array.prototype.splice.apply(memory, [20, 5].concat([0x90, 0x90, 0xF0, 0x10, 0x10])) // 4
+				Array.prototype.splice.apply(memory, [25, 5].concat([0xF0, 0x80, 0xF0, 0x10, 0xF0])) // 5
+				Array.prototype.splice.apply(memory, [30, 5].concat([0xF0, 0x80, 0xF0, 0x90, 0xF0])) // 6
+				Array.prototype.splice.apply(memory, [35, 5].concat([0xF0, 0x10, 0x20, 0x40, 0x40])) // 7
+				Array.prototype.splice.apply(memory, [40, 5].concat([0xF0, 0x90, 0xF0, 0x90, 0xF0])) // 8
+				Array.prototype.splice.apply(memory, [45, 5].concat([0xF0, 0x90, 0xF0, 0x10, 0xF0])) // 9
+				Array.prototype.splice.apply(memory, [50, 5].concat([0xF0, 0x90, 0xF0, 0x90, 0x90])) // A
+				Array.prototype.splice.apply(memory, [55, 5].concat([0xE0, 0x90, 0xE0, 0x90, 0xE0])) // B
+				Array.prototype.splice.apply(memory, [60, 5].concat([0xF0, 0x80, 0x80, 0x80, 0xF0])) // C
+				Array.prototype.splice.apply(memory, [65, 5].concat([0xE0, 0x90, 0x90, 0x90, 0xE0])) // D
+				Array.prototype.splice.apply(memory, [70, 5].concat([0xF0, 0x80, 0xF0, 0x80, 0xF0])) // E
+				Array.prototype.splice.apply(memory, [75, 5].concat([0xF0, 0x80, 0xF0, 0x80, 0x80])) // F
+
+
+				memeUpdate()
+			}
+			initialize()
+
+			// load program into memory
+			function loadROM(url) {
+				if (!url.length) {
+					// default rom - UFO
+					var prog = [0xa2, 0xcd, 0x69, 0x38, 0x6a, 0x08, 0xd9, 0xa3, 0xa2, 0xd0, 0x6b, 0x00, 0x6c, 0x03, 0xdb, 0xc3,
+						0xa2, 0xd6, 0x64, 0x1d, 0x65, 0x1f, 0xd4, 0x51, 0x67, 0x00, 0x68, 0x0f, 0x22, 0xa2, 0x22, 0xac, 0x48,
+						0x00, 0x12, 0x22, 0x64, 0x1e, 0x65, 0x1c, 0xa2, 0xd3, 0xd4, 0x53, 0x6e, 0x00, 0x66, 0x80, 0x6d, 0x04,
+						0xed, 0xa1, 0x66, 0xff, 0x6d, 0x05, 0xed, 0xa1, 0x66, 0x00, 0x6d, 0x06, 0xed, 0xa1, 0x66, 0x01, 0x36,
+						0x80, 0x22, 0xd8, 0xa2, 0xd0, 0xdb, 0xc3, 0xcd, 0x01, 0x8b, 0xd4, 0xdb, 0xc3, 0x3f, 0x00, 0x12, 0x92,
+						0xa2, 0xcd, 0xd9, 0xa3, 0xcd, 0x01, 0x3d, 0x00, 0x6d, 0xff, 0x79, 0xfe, 0xd9, 0xa3, 0x3f, 0x00, 0x12,
+						0x8c, 0x4e, 0x00, 0x12, 0x2e, 0xa2, 0xd3, 0xd4, 0x53, 0x45, 0x00, 0x12, 0x86, 0x75, 0xff, 0x84, 0x64,
+						0xd4, 0x53, 0x3f, 0x01, 0x12, 0x46, 0x6d, 0x08, 0x8d, 0x52, 0x4d, 0x08, 0x12, 0x8c, 0x12, 0x92, 0x22,
+						0xac, 0x78, 0xff, 0x12, 0x1e, 0x22, 0xa2, 0x77, 0x05, 0x12, 0x96, 0x22, 0xa2, 0x77, 0x0f, 0x22, 0xa2,
+						0x6d, 0x03, 0xfd, 0x18, 0xa2, 0xd3, 0xd4, 0x53, 0x12, 0x86, 0xa2, 0xf8, 0xf7, 0x33, 0x63, 0x00, 0x22,
+						0xb6, 0x00, 0xee, 0xa2, 0xf8, 0xf8, 0x33, 0x63, 0x32, 0x22, 0xb6, 0x00, 0xee, 0x6d, 0x1b, 0xf2, 0x65,
+						0xf0, 0x29, 0xd3, 0xd5, 0x73, 0x05, 0xf1, 0x29, 0xd3, 0xd5, 0x73, 0x05, 0xf2, 0x29, 0xd3, 0xd5, 0x00,
+						0xee, 0x01, 0x7c, 0xfe, 0x7c, 0x60, 0xf0, 0x60, 0x40, 0xe0, 0xa0, 0xf8, 0xd4, 0x6e, 0x01, 0x6d, 0x10,
+						0xfd, 0x18, 0x00, 0xee, 0x0a
+					]
+					loaded = true
+					Array.prototype.splice.apply(memory, [0x200, prog.length].concat(prog))
+				} else {
+					// load rom - requires cors
+					var xhr = new XMLHttpRequest();
+					xhr.open('GET', url, true);
+					xhr.responseType = 'arraybuffer';
+					xhr.send();
+
+					xhr.onload = function(e) {
+						if (xhr.status === 200) {
+							var rom = new Uint8Array(xhr.response)
+							for (i = 0, len = rom.length; i < len; i++) {
+								memory[0x200 + i] = rom[i]
+							}
+							loaded = true
+							console.log(' --- rom loaded --- ')
+						} else {
+							console.log(' --- rom load failed --- ')
+							loadROM();
+						}
+					}
+				}
+			}
+			loadROM(url)
+
+			// draw screen
+			function drawScreen() {
+				for (var m = 0; m < gfx.length; m++) {
+					var xpos = m % 64
+					var ypos = Math.floor(m / 64)
+
+					if (gfx[m] == 1) {
+						ctx.fillStyle = "black"
+					} else {
+						ctx.fillStyle = "white"
+					}
+
+					ctx.fillRect(xpos, ypos, 1, 1)
+				}
+				redraw = false
+			}
+
+			/// cycle count
+			var step = 0
+			var maxSteps = 0
+
+			function $(classname) {
+				return document.getElementsByClassName(classname);
+			}
+			// emulate system cycle
+			function cycle() {
+
+				step += 1
+
+				// read opcode - (2 bytes long, most-significant-byte first)
+				opcode = memory[pc] << 8 | memory[pc + 1]
+
+				// 36 instructions (math, graphics, flow control)
+				var code = opcode & 0xF000 // instruction
+				var nnn = opcode & 0x0FFF // nnn or addr - A 12-bit value, the lowest 12 bits of the instruction
+				var kk = opcode & 0x00FF // kk or byte - An 8-bit value, the lowest 8 bits of the instruction
+				var n = opcode & 0x000F // n or nibble - A 4-bit value, the lowest 4 bits of the instruction
+				var x = (opcode & 0x0F00) >> 8 // x - A 4-bit value, the lower 4 bits of the high byte of the instruction
+				var y = (opcode & 0x00F0) >> 4 // y - A 4-bit value, the upper 4 bits of the low byte of the instruction
+
+				// output pre cycle
+				console.log(' --- cycle ' + step + ' --- ')
+				console.log('pc:', pc, 'sp:', sp)
+				console.log('instruction:', opcode.toString(16), 'code:', code.toString(16))
+				console.log('nnn:', nnn, 'n:', n, 'x:', x, 'y:', y, 'kk:', kk)
+				console.log('v:', V)
+				console.log('stack:', stack)
+				console.log("I:", I)
+				$('content')[0].getElementsByTagName('input')[0].value = step;
+				$('content')[0].getElementsByTagName('input')[1].value = pc;
+				$('content')[0].getElementsByTagName('input')[2].value = opcode.toString(16);
+				$('content')[0].getElementsByTagName('input')[3].value = sp;
+				$('content')[0].getElementsByTagName('input')[4].value = V;
+				$('content')[0].getElementsByTagName('input')[5].value = stack;
+				$('content')[0].getElementsByTagName('input')[6].value = I;
+
+				// console.log($('content')[0].getElementsByTagName('input')[0].value);
+				if (debug) {
+					memeUpdate()
+				}
+
+				if (redraw) drawScreen() // redraw if needed
+				pc += 2 // increment program counter
+
+				switch (code) {
+					case 0x0000:
+						switch (opcode & 0x00FF) {
+							// 0nnn - SYS addr
+							//  Jump to a machine code routine at nnn.
+							//  This instruction is only used on the old computers on which Chip-8 was originally implemented. It is ignored by modern interpreters.
+
+							// 00E0 - CLS
+							//  Clear the display.
+							case 0x00E0:
+								gfx = Array.apply(null, Array(64 * 32)).map(function() {
+									return 0
+								}) // reset display
+								redraw = true
+								break
+
+								// 00EE - RET
+								//  Return from a subroutine.
+								//  The interpreter sets the program counter to the address at the top of the stack, then subtracts 1 from the stack pointer.
+							case 0x00EE:
+								pc = stack[sp]
+								sp--
+								break
+						}
+						break
+
+						// 1nnn - JP addr
+						//  Jump to location nnn.
+						//  The interpreter sets the program counter to nnn.
+					case 0x1000:
+						pc = nnn
+						break
+
+						// 2nnn - CALL addr
+						//  Call subroutine at nnn.
+						//  The interpreter increments the stack pointer, then puts the current PC on the top of the stack. The PC is then set to nnn.
+					case 0x2000:
+						sp++
+						stack[sp] = pc
+						pc = nnn
+						break
+
+						// 3xkk - SE Vx, byte
+						//  Skip next instruction if Vx = kk.
+						//  The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
+					case 0x3000:
+						if (V[x] === kk) {
+							pc += 2
+						}
+						break
+
+						// 4xkk - SNE Vx, byte
+						//  Skip next instruction if Vx != kk.
+						//  The interpreter compares register Vx to kk, and if they are not equal, increments the program counter by 2.
+					case 0x4000:
+						if (V[x] !== kk) {
+							pc += 2
+						}
+						break
+
+						// 5xy0 - SE Vx, Vy
+						//  Skip next instruction if Vx = Vy.
+						//  The interpreter compares register Vx to register Vy, and if they are equal, increments the program counter by 2.
+					case 0x5000:
+						if (V[x] === V[y]) {
+							pc += 2
+						}
+						break
+
+						// 6xkk - LD Vx, byte
+						//  Set Vx = kk.
+						//  The interpreter puts the value kk into register Vx.
+					case 0x6000:
+						V[x] = kk
+						break
+
+						// 7xkk - ADD Vx, byte
+						//  Set Vx = Vx + kk.
+						//  Adds the value kk to the value of register Vx, then stores the result in Vx.
+					case 0x7000:
+						V[x] += kk
+						V[x] &= 0x00FF
+						break
+
+					case 0x8000:
+						switch (opcode & 0x000F) {
+							// 8xy0 - LD Vx, Vy
+							//  Set Vx = Vy.
+							//  Stores the value of register Vy in register Vx.
+							case 0x0000:
+								V[x] = V[y]
+								break
+
+								// 8xy1 - OR Vx, Vy
+								//  Set Vx = Vx OR Vy.
+								//  Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx. A bitwise OR compares the corrseponding bits from two values, and if either bit is 1, then the same bit in the result is also 1. Otherwise, it is 0.
+							case 0x0001:
+								V[x] |= V[y]
+								break
+
+								// 8xy2 - AND Vx, Vy
+								//  Set Vx = Vx AND Vy.
+								//  Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx. A bitwise AND compares the corrseponding bits from two values, and if both bits are 1, then the same bit in the result is also 1. Otherwise, it is 0.
+							case 0x0002:
+								V[x] &= V[y]
+								break
+
+								// 8xy3 - XOR Vx, Vy
+								//  Set Vx = Vx XOR Vy.
+								//  Performs a bitwise exclusive OR on the values of Vx and Vy, then stores the result in Vx. An exclusive OR compares the corrseponding bits from two values, and if the bits are not both the same, then the corresponding bit in the result is set to 1. Otherwise, it is 0.
+							case 0x0003:
+								V[x] ^= V[y]
+								break
+
+								// 8xy4 - ADD Vx, Vy
+								//  Set Vx = Vx + Vy, set VF = carry.
+								//  The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
+							case 0x0004:
+								V[x] += V[y]
+								V[0xF] = (V[x] & 0x10) >> 8
+								V[x] &= 0x00FF
+								break
+
+								// 8xy5 - SUB Vx, Vy
+								//  Set Vx = Vx - Vy, set VF = NOT borrow.
+								//  If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+							case 0x0005:
+								V[0xF] = +(V[x] > V[y])
+								V[x] -= V[y]
+								V[x] &= 0x00FF
+								break
+
+								// 8xy6 - SHR Vx {, Vy}
+								//  Set Vx = Vx SHR 1.
+								//  If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
+							case 0x0006:
+								V[0xF] = V[x] & 0x1
+								V[x] >>= 1
+								break
+
+								// 8xy7 - SUBN Vx, Vy
+								//  Set Vx = Vy - Vx, set VF = NOT borrow.
+								//  If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
+							case 0x0007:
+								V[0xF] = +(V[y] > V[x])
+								V[x] = V[y] - V[x]
+								V[x] = V[x] & 0x00FF
+								break
+
+								// 8xyE - SHL Vx {, Vy}
+								//  Set Vx = Vx SHL 1.
+								//  If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
+							case 0x000E:
+								V[0xF] = +(V[x] & 0x80)
+								V[x] <<= 1
+								V[x] &= 0x00FF
+								break
+
+								// Not Implemented - Error
+							default:
+								console.error('error: Instruction not implemented: ', opcode.toString(16))
+						}
+						break
+
+						// 9xy0 - SNE Vx, Vy
+						//  Skip next instruction if Vx != Vy.
+						//  The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
+					case 0x9000:
+						if (V[x] !== V[y]) {
+							pc += 2
+						}
+						break
+
+						// Annn - LD I, addr
+						//  Set I = nnn.
+						//  The value of register I is set to nnn.
+					case 0xA000:
+						I = nnn
+						break
+
+						// Bnnn - JP V0, addr
+						//  Jump to location nnn + V0.
+						//  The program counter is set to nnn plus the value of V0.
+					case 0xB000:
+						pc = nnn + V[0x0]
+						break
+
+						// Cxkk - RND Vx, byte
+						//  Set Vx = random byte AND kk.
+						//  The interpreter generates a random number from 0 to 255, which is then ANDed with the value kk. The results are stored in Vx. See instruction 8xy2 for more information on AND.
+					case 0xC000:
+						V[x] = Math.floor(Math.random() * 0xFF) & kk
+						break
+
+						// Dxyn - DRW Vx, Vy, nibble
+						//  Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+						//  The interpreter reads n bytes from memory, starting at the address stored in I. These bytes are then displayed as sprites on screen at coordinates (Vx, Vy). Sprites are XORed onto the existing screen. If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0. If the sprite is positioned so part of it is outside the coordinates of the display, it wraps around to the opposite side of the screen. See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more information on the Chip-8 screen and sprites.
+					case 0xD000:
+						var xpos = V[x]
+						var ypos = V[y]
+						var height = n
+
+						// collision bit off
+						V[0xF] = 0
+
+						for (var row = 0; row < height; row++) {
+							var pixel = memory[I + row]
+							for (var col = 0; col < 8; col++) {
+								if ((pixel & (0x80 >> col)) !== 0) {
+									var xx = xpos + col
+									var yy = ypos + row
+
+									if (xx >= 64) {
+										xx -= 64
+									}
+									if (xx < 0) {
+										xx += 64
+									}
+									if (yy >= 32) {
+										yy -= 32
+									}
+									if (yy < 0) {
+										yy += 32
+									}
+
+									if (gfx[yy * 64 + xx] == 1) {
+										V[0xF] = 1; // collision bit on
+									}
+
+									gfx[yy * 64 + xx] ^= 1
+								}
+							}
+						}
+
+						redraw = true
+						break
+
+					case 0xE000:
+						switch (opcode & 0x00FF) {
+							// Ex9E - SKP Vx
+							//  Skip next instruction if key with the value of Vx is pressed.
+							//  Checks the keyboard, and if the key corresponding to the value of Vx is currently in the down position, PC is increased by 2.
+							case 0x009E:
+								if (keys[V[x]]) {
+									pc += 2
+								}
+								break
+
+								// ExA1 - SKNP Vx
+								//  Skip next instruction if key with the value of Vx is not pressed.
+								//  Checks the keyboard, and if the key corresponding to the value of Vx is currently in the up position, PC is increased by 2.
+							case 0x00A1:
+								if (!keys[V[x]]) {
+									pc += 2
+								}
+								break
+
+								// Not Implemented - Error
+							default:
+								console.error('error: Instruction not implemented: ', opcode.toString(16))
+						}
+						break
+
+					case 0xF000:
+						switch (opcode & 0x00FF) {
+							// Fx07 - LD Vx, DT
+							//  Set Vx = delay timer value.
+							//  The value of DT is placed into Vx.
+							case 0x0007:
+								V[x] = delay
+								break
+
+								// Fx0A - LD Vx, K
+								//  Wait for a key press, store the value of the key in Vx.
+								//  All execution stops until a key is pressed, then the value of that key is stored in Vx.
+							case 0x000A:
+								break
+
+								// Fx15 - LD DT, Vx
+								//  Set delay timer = Vx.
+								//  DT is set equal to the value of Vx.
+							case 0x0015:
+								delay = V[x]
+								break
+
+								// Fx18 - LD ST, Vx
+								//  Set sound timer = Vx.
+								//  ST is set equal to the value of Vx.
+							case 0x0018:
+								sound = V[x]
+								break
+
+								// Fx1E - ADD I, Vx
+								//  Set I = I + Vx.
+								//  The values of I and Vx are added, and the results are stored in I.
+							case 0x001E:
+								I += V[x]
+								break
+
+								// Fx29 - LD F, Vx
+								//  Set I = location of sprite for digit Vx.
+								//  The value of I is set to the location for the hexadecimal sprite corresponding to the value of Vx. See section 2.4, Display, for more information on the Chip-8 hexadecimal font.
+							case 0x0029:
+								I = V[x] * 5
+								break
+
+								// Fx33 - LD B, Vx
+								//  Store BCD representation of Vx in memory locations I, I+1, and I+2.
+								//  The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.
+							case 0x0033:
+								var num = V[x]
+
+								for (var m = 3; m > 0; m--) {
+									memory[I + m - 1] = parseInt(num % 10, 10)
+									num /= 10
+								}
+								break
+
+								// Fx55 - LD [I], Vx
+								//  Store registers V0 through Vx in memory starting at location I.
+								//  The interpreter copies the values of registers V0 through Vx into memory, starting at the address in I.
+							case 0x0055:
+								for (var m = 0; m <= x; m++) {
+									memory[I + m] = V[m]
+								}
+								break
+
+								// Fx65 - LD Vx, [I]
+								//  Read registers V0 through Vx from memory starting at location I.
+								//  The interpreter reads values from memory starting at location I into registers V0 through Vx.
+							case 0x0065:
+								for (var m = 0; m <= x; m++) {
+									V[m] = memory[I + m]
+								}
+								break
+
+								// Not Implemented - Error
+							default:
+								console.error('error: Instruction not implemented: ', opcode.toString(16))
+						}
+						break
+
+						// Not Implemented - Error
+					default:
+						console.error('error: Instruction not implemented: ', code.toString(16))
+				}
+
+				// update timers
+				if (delay > 0) {
+					delay--
+				}
+
+				if (sound > 0) {
+					if (sound == 1) {
+						beep.play()
+					}
+					sound--
+				}
+				if (!debug) {
+					window.requestAnimationFrame(cycle)
+				}
+
+				// if (maxSteps === 0 || step < maxSteps) {
+				// 	setTimeout(cycle, 1)
+				// }
+			}
+
+			// start emulation on load
+			function loading() {
+				if (loaded && !debug) {
+					window.requestAnimationFrame(cycle)
+					// setTimeout(cycle, 1)
+				} else {
+					setTimeout(loading, 1)
+				}
+			}
+			loading()
+
+			// key events
+			function setKey(key, position) {
+				keys[key] = position
+			}
+
+			document.addEventListener('keydown', function(event) {
+				setKey(keybinds[event.which], 1)
+			})
+
+			document.addEventListener('keyup', function(event) {
+				setKey(keybinds[event.which], 0)
+			})
+		</script>
+		<div class="controls">
+			<button ontouchstart="setKey(0x1, 1)" ontouchend="setKey(0x1, 0)">1</button>
+			<button ontouchstart="setKey(0x2, 1)" ontouchend="setKey(0x2, 0)">2</button>
+			<button ontouchstart="setKey(0x3, 1)" ontouchend="setKey(0x3, 0)">3</button>
+			<button ontouchstart="setKey(0xc, 1)" ontouchend="setKey(0xc, 0)">C</button><br>
+			<button ontouchstart="setKey(0x4, 1)" ontouchend="setKey(0x4, 0)">4</button>
+			<button ontouchstart="setKey(0x5, 1)" ontouchend="setKey(0x5, 0)">5</button>
+			<button ontouchstart="setKey(0x6, 1)" ontouchend="setKey(0x6, 0)">6</button>
+			<button ontouchstart="setKey(0xd, 1)" ontouchend="setKey(0xd, 0)">D</button><br>
+			<button ontouchstart="setKey(0x7, 1)" ontouchend="setKey(0x7, 0)">7</button>
+			<button ontouchstart="setKey(0x8, 1)" ontouchend="setKey(0x8, 0)">8</button>
+			<button ontouchstart="setKey(0x9, 1)" ontouchend="setKey(0x9, 0)">9</button>
+			<button ontouchstart="setKey(0xe, 1)" ontouchend="setKey(0xe, 0)">E</button><br>
+			<button ontouchstart="setKey(0xa, 1)" ontouchend="setKey(0xa, 0)">A</button>
+			<button ontouchstart="setKey(0x0, 1)" ontouchend="setKey(0x0, 0)">0</button>
+			<button ontouchstart="setKey(0xb, 1)" ontouchend="setKey(0xb, 0)">B</button>
+			<button ontouchstart="setKey(0xf, 1)" ontouchend="setKey(0xf, 0)">F</button><br>
+		</div>
+	</body>
+</html>
