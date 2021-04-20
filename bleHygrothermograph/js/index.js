@@ -109,7 +109,7 @@ function overrideServices(services) {
 					characteristic.addEventListener('characteristicvaluechanged', function(
 						event) {
 						const value = event.target.value;
-						// console.log('Received ' + value);
+						 console.log('Received ' + value);
 
 						// console.log(value.buffer, value.byteLength);
 
@@ -132,7 +132,7 @@ function overrideServices(services) {
 					console.log("ping");
 					const value = stringToUint8Array("ping");
 					characteristic.writeValue(value);
-					console.log($('#StopBtn'));
+			
 					$('#StopBtn')[0].addEventListener("click", function() {
 				
 						characteristic.writeValue(stringToUint8Array("stop"));
