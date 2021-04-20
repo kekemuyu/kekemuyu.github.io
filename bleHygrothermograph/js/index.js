@@ -67,6 +67,7 @@ $("#scanBtn")[0].addEventListener('click', function() {
 		});
 });
 
+
 function overrideServices(services) {
 	console.log('Getting Characteristics...');
 	let queue = Promise.resolve();
@@ -105,39 +106,53 @@ function overrideServices(services) {
 				// $('tbody')[0].appendChild(eletr);
 				if (properties.indexOf("NOTIFY") != -1) {
 					characteristic.startNotifications()
-					characteristic.addEventListener('characteristicvaluechanged', function(event) {
+					characteristic.addEventListener('characteristicvaluechanged', function(
+						event) {
 						const value = event.target.value;
-						console.log('Received ' + value);
+						// console.log('Received ' + value);
 
-						console.log(value.buffer, value.byteLength);
+						// console.log(value.buffer, value.byteLength);
 
-						console.log(String.fromCharCode.apply(null, new Uint8Array(value.buffer)));
-						const strvalue=String.fromCharCode.apply(null, new Uint8Array(value.buffer));
-						const objValue=JSON.parse(strvalue);
-						if(objValue.temp){
-					
+						// console.log(String.fromCharCode.apply(null, new Uint8Array(value.buffer)));
+						const strvalue = String.fromCharCode.apply(null,
+							new Uint8Array(value.buffer));
+						const objValue = JSON.parse(strvalue);
+						if (objValue.temp) {
+
 							$('.temp .number').text(objValue.temp);
-						}else if(objValue.humi){
+						} else if (objValue.humi) {
 							$('.energy .number').text(objValue.humi);
 						}
+
+				
 					});
 				}
+				if (properties.indexOf("WRITE") != -1) {
+					writeCharactor=characteristic;
+					console.log("ping");
+					const value = stringToUint8Array("ping");
+					characteristic.writeValue(value);
+					console.log($('#StopBtn'));
+					$('#StopBtn')[0].addEventListener("click", function() {
+				
+						characteristic.writeValue(stringToUint8Array("stop"));
+						
+					});
+					// $('#' + characteristic.uuid + ' button')[1].addEventListener("click", function() {
 
+					// 	// Writing 1 is the signal to reset energy expended.
+					// 	const inputValue = $('#' + characteristic.uuid + ' input').val();
+					// 	const value = stringToUint8Array(inputValue);
+					// 	characteristic.writeValue(value);
+					// });
+				}
 				// if (properties.indexOf("READ") != -1) {
 				// 	$('#' + characteristic.uuid + ' button')[0].addEventListener("click", function() {
 				// 		const value = characteristic.readValue();
 				// 		$('#' + characteristic.uuid + ' input').val(String.fromCharCode.apply(null, new Uint8Array(value.buffer)));
 				// 	});
 				// }
-				// if (properties.indexOf("WRITE") != -1) {
-				// 	$('#' + characteristic.uuid + ' button')[1].addEventListener("click", function() {
 
-				// 		// Writing 1 is the signal to reset energy expended.
-				// 		const inputValue = $('#' + characteristic.uuid + ' input').val();
-				// 		const value = stringToUint8Array(inputValue);
-				// 		characteristic.writeValue(value);
-				// 	});
-				// }
 
 			});
 		}));

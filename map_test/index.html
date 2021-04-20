@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Hello, World</title>
+		<style type="text/css">
+			html {
+				height: 100%
+			}
+
+			body {
+				height: 100%;
+				margin: 0px;
+				padding: 0px
+			}
+
+			#container {
+				height: 100%
+			}
+		</style>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=Q9zl4fYSepoMemH984kG3ScYyiK6X2V3">
+			//v3.0版本的引用方式：src="http://api.map.baidu.com/api?v=3.0&ak=Q9zl4fYSepoMemH984kG3ScYyiK6X2V3"
+		</script>
+		<script type="text/javascript" src="//mapopen.cdn.bcebos.com/github/BMapGLLib/DistanceTool/src/DistanceTool.min.js"></script>
+	</head>
+
+	<body>
+		<div id="container"></div>
+		<script type="text/javascript">
+			// var map = new BMap.Map("container");
+			// // 创建地图实例  
+			// var point = new BMap.Point(116.404, 39.915);
+			// // 创建点坐标  
+			// map.centerAndZoom(point, 15);
+			// // 初始化地图，设置中心点坐标和地图级别  
+
+
+			// 百度地图API功能
+			//GPS坐标
+			//38.03756860372905, 114.53036785125732
+			var x = 114.53036785125732;
+			var y = 38.03756860372905;
+			var ggPoint = new BMap.Point(x, y);
+
+			//地图初始化
+			var bm = new BMap.Map("container");
+			bm.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+			bm.centerAndZoom(ggPoint, 15);
+			bm.addControl(new BMap.NavigationControl());
+
+			//添加gps marker和label
+			var markergg = new BMap.Marker(ggPoint);
+			bm.addOverlay(markergg); //添加GPS marke
+			var labelgg = new BMap.Label("未转换的GPS坐标（错误）", {
+				offset: new BMap.Size(20, -10)
+			});
+			markergg.setLabel(labelgg); //添加GPS label
+
+		
+
+			//坐标转换完之后的回调函数
+			translateCallback = function(data) {
+				if (data.status === 0) {
+					var marker = new BMap.Marker(data.points[0]);
+					bm.addOverlay(marker);
+					var label = new BMap.Label("转换后的百度坐标（正确）", {
+						offset: new BMap.Size(20, -10)
+					});
+					marker.setLabel(label); //添加百度label
+					bm.setCenter(data.points[0]);
+				}
+			}
+		
+
+			setTimeout(function() {
+				var convertor = new BMap.Convertor();
+				var pointArr = [];
+				pointArr.push(ggPoint);
+				convertor.translate(pointArr, 1, 5, translateCallback)
+			}, 1000);
+		</script>
+	</body>
+</html>
