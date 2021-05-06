@@ -144,7 +144,9 @@ function overrideServices(services) {
 						characteristic.writeValue(stringToUint8Array("stop"));
 						
 					});
-					$('#pingBtn')[0].onclick;
+					
+					setTimeout($('#pingBtn')[0].onclick,1000);
+					;
 					// $('#' + characteristic.uuid + ' button')[1].addEventListener("click", function() {
 
 					// 	// Writing 1 is the signal to reset energy expended.
