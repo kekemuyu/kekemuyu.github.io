@@ -124,7 +124,7 @@ function overrideServices(services) {
 							$('.energy .number').text(objValue.humi);
 						}
 
-				$('#pingBtn')[0].click();
+			
 					});
 				}
 				if (properties.indexOf("WRITE") != -1) {
@@ -146,7 +146,7 @@ function overrideServices(services) {
 					});
 					
 				
-
+					$('#pingBtn').click();
 					// $('#' + characteristic.uuid + ' button')[1].addEventListener("click", function() {
 
 					// 	// Writing 1 is the signal to reset energy expended.
