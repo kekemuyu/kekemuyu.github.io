@@ -124,7 +124,7 @@ function overrideServices(services) {
 							$('.energy .number').text(objValue.humi);
 						}
 
-						$('#pingBtn').click();
+		
 					});
 				}
 				if (properties.indexOf("WRITE") != -1) {
