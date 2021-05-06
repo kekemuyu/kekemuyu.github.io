@@ -131,7 +131,7 @@ function overrideServices(services) {
 					writeCharactor=characteristic;
 					console.log("ping");
 					const value = stringToUint8Array("ping");
-					setTimeout(characteristic.writeValue(value),10);
+					//setTimeout(characteristic.writeValue(value),10);
 					
 			
 					$('#StopBtn')[0].addEventListener("click", function() {
